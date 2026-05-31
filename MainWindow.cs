@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ICSharpCode.AvalonEdit;
@@ -61,6 +62,7 @@ public sealed class MainWindow : Window
         Topmost = true;
         MinWidth = 320;
         MinHeight = 240;
+        Resources.MergedDictionaries.Add(CreateTransparentChromeResources());
 
         _background.CornerRadius = new CornerRadius(8);
         _background.BorderThickness = new Thickness(1);
@@ -116,6 +118,97 @@ public sealed class MainWindow : Window
 
         var alpha = (byte)MapOpacityToByte(Math.Clamp(_settings.BackgroundOpacity, 0.1, 1.0));
         _background.Background = new SolidColorBrush(Color.FromArgb(alpha, 28, 32, 36));
+    }
+
+    private static ResourceDictionary CreateTransparentChromeResources()
+    {
+        const string xaml = """
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="TopMemoChromeBorder" Color="#55FFFFFF" />
+    <SolidColorBrush x:Key="TopMemoTabBackground" Color="#331C2024" />
+    <SolidColorBrush x:Key="TopMemoTabSelectedBackground" Color="#CC20242A" />
+    <SolidColorBrush x:Key="TopMemoScrollTrack" Color="#22000000" />
+    <SolidColorBrush x:Key="TopMemoScrollThumb" Color="#66FFFFFF" />
+    <SolidColorBrush x:Key="TopMemoScrollThumbHover" Color="#99FFFFFF" />
+
+    <Style TargetType="{x:Type TabControl}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{StaticResource TopMemoChromeBorder}" />
+    </Style>
+
+    <Style TargetType="{x:Type TabItem}">
+        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Background" Value="{StaticResource TopMemoTabBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource TopMemoChromeBorder}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type TabItem}">
+                    <Border x:Name="Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="1"
+                            Padding="10,4"
+                            Margin="0,0,2,0">
+                        <ContentPresenter ContentSource="Header"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="{StaticResource TopMemoTabSelectedBackground}" />
+                            <Setter Property="Panel.ZIndex" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Border" Property="Background" Value="#552C3238" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type ScrollBar}">
+        <Setter Property="Background" Value="{StaticResource TopMemoScrollTrack}" />
+        <Setter Property="Foreground" Value="{StaticResource TopMemoScrollThumb}" />
+        <Setter Property="Width" Value="14" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollBar}">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Track x:Name="PART_Track" IsDirectionReversed="True">
+                            <Track.Thumb>
+                                <Thumb Background="{TemplateBinding Foreground}">
+                                    <Thumb.Template>
+                                        <ControlTemplate TargetType="{x:Type Thumb}">
+                                            <Border Background="{TemplateBinding Background}"
+                                                    CornerRadius="4"
+                                                    Margin="3" />
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Orientation" Value="Horizontal">
+                            <Setter Property="Width" Value="Auto" />
+                            <Setter Property="Height" Value="14" />
+                            <Setter TargetName="PART_Track" Property="IsDirectionReversed" Value="False" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="{StaticResource TopMemoScrollThumbHover}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>
+""";
+
+        return (ResourceDictionary)XamlReader.Parse(xaml);
     }
 
     private void SetupTrayIcon()
