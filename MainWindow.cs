@@ -64,6 +64,12 @@ public sealed class MainWindow : Window
         Topmost = true;
         MinWidth = 320;
         MinHeight = 240;
+        UseLayoutRounding = true;
+        SnapsToDevicePixels = true;
+        TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
+        TextOptions.SetTextHintingMode(this, TextHintingMode.Fixed);
+        TextOptions.SetTextRenderingMode(this, TextRenderingMode.ClearType);
+        RenderOptions.SetClearTypeHint(this, ClearTypeHint.Enabled);
         Resources.MergedDictionaries.Add(CreateTransparentChromeResources());
 
         _background.CornerRadius = new CornerRadius(8);
@@ -97,11 +103,13 @@ public sealed class MainWindow : Window
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(8, 0, 12, 0)
         };
+        ConfigureTextElement(title);
         toolbar.Children.Add(title);
 
         _statusText.Foreground = new SolidColorBrush(Color.FromRgb(230, 230, 230));
         _statusText.Margin = new Thickness(16, 0, 16, 8);
         _statusText.TextTrimming = TextTrimming.CharacterEllipsis;
+        ConfigureTextElement(_statusText);
         DockPanel.SetDock(_statusText, Dock.Bottom);
         layout.Children.Add(_statusText);
 
@@ -291,6 +299,9 @@ public sealed class MainWindow : Window
                 EnableRectangularSelection = true
             }
         };
+        ConfigureTextElement(editor);
+        ConfigureTextElement(editor.TextArea);
+        ConfigureTextElement(editor.TextArea.TextView);
         editor.TextArea.TextView.LineTransformers.Add(new HashHeadingColorizer());
         editor.Text = File.ReadAllText(filePath);
 
@@ -529,6 +540,18 @@ public sealed class MainWindow : Window
     private static int MapOpacityToByte(double opacity)
     {
         return (int)Math.Round(opacity * 255);
+    }
+
+    private static void ConfigureTextElement(DependencyObject element)
+    {
+        TextOptions.SetTextFormattingMode(element, TextFormattingMode.Display);
+        TextOptions.SetTextHintingMode(element, TextHintingMode.Fixed);
+        TextOptions.SetTextRenderingMode(element, TextRenderingMode.ClearType);
+        RenderOptions.SetClearTypeHint(element, ClearTypeHint.Enabled);
+        if (element is UIElement uiElement)
+        {
+            uiElement.SnapsToDevicePixels = true;
+        }
     }
 
     private void ApplyFontSettings()
