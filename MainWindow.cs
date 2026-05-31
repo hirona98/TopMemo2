@@ -10,12 +10,10 @@ using Microsoft.Win32;
 using TopMemo2.Models;
 using TopMemo2.Services;
 using Forms = System.Windows.Forms;
-using Button = System.Windows.Controls.Button;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
 using FontFamily = System.Windows.Media.FontFamily;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
-using Orientation = System.Windows.Controls.Orientation;
 using TabControl = System.Windows.Controls.TabControl;
 
 namespace TopMemo2;
@@ -77,8 +75,6 @@ public sealed class MainWindow : Window
             Height = 40,
             Margin = new Thickness(8, 6, 8, 0)
         };
-        toolbar.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        toolbar.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         toolbar.MouseLeftButtonDown += (_, e) =>
         {
             if (e.ButtonState == MouseButtonState.Pressed)
@@ -97,21 +93,7 @@ public sealed class MainWindow : Window
             VerticalAlignment = VerticalAlignment.Center,
             Margin = new Thickness(8, 0, 12, 0)
         };
-        Grid.SetColumn(title, 0);
         toolbar.Children.Add(title);
-
-        var buttons = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            VerticalAlignment = VerticalAlignment.Center
-        };
-        Grid.SetColumn(buttons, 1);
-        toolbar.Children.Add(buttons);
-
-        buttons.Children.Add(CreateButton("ファイル追加", (_, _) => AddFiles()));
-        buttons.Children.Add(CreateButton("設定", (_, _) => OpenSettings()));
-        buttons.Children.Add(CreateButton("全保存", (_, _) => SaveAllTabsWithStatus()));
-        buttons.Children.Add(CreateButton("隠す", (_, _) => HideWithSave()));
 
         _statusText.Foreground = new SolidColorBrush(Color.FromRgb(230, 230, 230));
         _statusText.Margin = new Thickness(16, 0, 16, 8);
@@ -123,20 +105,6 @@ public sealed class MainWindow : Window
         _tabControl.Background = Brushes.Transparent;
         _tabControl.BorderBrush = new SolidColorBrush(Color.FromArgb(80, 255, 255, 255));
         layout.Children.Add(_tabControl);
-    }
-
-    private static Button CreateButton(string text, RoutedEventHandler handler)
-    {
-        var button = new Button
-        {
-            Content = text,
-            MinWidth = 72,
-            Height = 28,
-            Margin = new Thickness(4, 0, 0, 0),
-            Padding = new Thickness(10, 0, 10, 0)
-        };
-        button.Click += handler;
-        return button;
     }
 
     private void ApplySettings()
