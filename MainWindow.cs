@@ -120,6 +120,7 @@ public sealed class MainWindow : Window
 
         var alpha = (byte)MapOpacityToByte(Math.Clamp(_settings.BackgroundOpacity, 0.1, 1.0));
         _background.Background = new SolidColorBrush(Color.FromArgb(alpha, 28, 32, 36));
+        ApplyFontSettings();
     }
 
     private static ResourceDictionary CreateTransparentChromeResources()
@@ -277,8 +278,8 @@ public sealed class MainWindow : Window
     {
         var editor = new TextEditor
         {
-            FontFamily = new FontFamily("Consolas"),
-            FontSize = 14,
+            FontFamily = new FontFamily(GetFontFamilyName()),
+            FontSize = GetFontSize(),
             ShowLineNumbers = true,
             Background = Brushes.Transparent,
             Foreground = Brushes.White,
@@ -528,6 +529,31 @@ public sealed class MainWindow : Window
     private static int MapOpacityToByte(double opacity)
     {
         return (int)Math.Round(opacity * 255);
+    }
+
+    private void ApplyFontSettings()
+    {
+        var fontFamily = new FontFamily(GetFontFamilyName());
+        var fontSize = GetFontSize();
+        foreach (var tab in _tabs)
+        {
+            tab.Editor.FontFamily = fontFamily;
+            tab.Editor.FontSize = fontSize;
+        }
+    }
+
+    private string GetFontFamilyName()
+    {
+        return string.IsNullOrWhiteSpace(_settings.Font?.Family)
+            ? new FontSettings().Family
+            : _settings.Font.Family;
+    }
+
+    private double GetFontSize()
+    {
+        return _settings.Font?.Size is >= 6 and <= 72
+            ? _settings.Font.Size
+            : new FontSettings().Size;
     }
 
     private static BitmapFrame? LoadWindowIcon()

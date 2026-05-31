@@ -5,6 +5,7 @@ public sealed class AppSettings
     public List<string> Files { get; set; } = [];
     public WindowSettings Window { get; set; } = new();
     public HotCornerSettings HotCorner { get; set; } = new();
+    public FontSettings Font { get; set; } = new();
     public int HideDelayMilliseconds { get; set; } = 2000;
     public double BackgroundOpacity { get; set; } = 0.85;
 }
@@ -20,4 +21,10 @@ public sealed class WindowSettings
 public sealed class HotCornerSettings
 {
     public int Size { get; set; } = 3;
+}
+
+public sealed class FontSettings
+{
+    public string Family { get; set; } = "Consolas";
+    public double Size { get; set; } = 14;
 }

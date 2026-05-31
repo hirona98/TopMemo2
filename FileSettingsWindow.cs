@@ -21,6 +21,8 @@ public sealed class FileSettingsWindow : Window
     private readonly TextBox _backgroundOpacity = new();
     private readonly TextBox _windowWidth = new();
     private readonly TextBox _windowHeight = new();
+    private readonly TextBox _fontFamily = new();
+    private readonly TextBox _fontSize = new();
     private readonly List<string> _files;
 
     public AppSettings? ResultSettings { get; private set; }
@@ -95,7 +97,7 @@ public sealed class FileSettingsWindow : Window
         var form = new Grid { Margin = new Thickness(0, 12, 0, 0) };
         form.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(170) });
         form.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
-        for (var i = 0; i < 5; i++)
+        for (var i = 0; i < 7; i++)
         {
             form.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         }
@@ -107,6 +109,8 @@ public sealed class FileSettingsWindow : Window
         AddFormRow(form, 2, "背景不透明度", _backgroundOpacity, source.BackgroundOpacity.ToString("0.##"));
         AddFormRow(form, 3, "ウィンドウ幅", _windowWidth, source.Window.Width.ToString("0"));
         AddFormRow(form, 4, "ウィンドウ高さ", _windowHeight, source.Window.Height.ToString("0"));
+        AddFormRow(form, 5, "フォント名", _fontFamily, GetFontFamily(source));
+        AddFormRow(form, 6, "フォントサイズ", _fontSize, GetFontSize(source).ToString("0.##"));
     }
 
     private static Button CreateSideButton(string text, RoutedEventHandler handler)
@@ -247,12 +251,26 @@ public sealed class FileSettingsWindow : Window
             return;
         }
 
+        var fontFamily = _fontFamily.Text.Trim();
+        if (string.IsNullOrWhiteSpace(fontFamily))
+        {
+            MessageBox.Show(this, "フォント名は空にしません。", "TopMemo2 設定", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        if (!TryParseDouble(_fontSize.Text, 6, 72, out var fontSize, "フォントサイズ"))
+        {
+            return;
+        }
+
         ResultSettings.Files = [.. _files];
         ResultSettings.HotCorner.Size = hotCornerSize;
         ResultSettings.HideDelayMilliseconds = hideDelay;
         ResultSettings.BackgroundOpacity = opacity;
         ResultSettings.Window.Width = width;
         ResultSettings.Window.Height = height;
+        ResultSettings.Font.Family = fontFamily;
+        ResultSettings.Font.Size = fontSize;
 
         DialogResult = true;
         Close();
@@ -287,6 +305,11 @@ public sealed class FileSettingsWindow : Window
             Files = [.. source.Files],
             HideDelayMilliseconds = source.HideDelayMilliseconds,
             BackgroundOpacity = source.BackgroundOpacity,
+            Font = new FontSettings
+            {
+                Family = GetFontFamily(source),
+                Size = GetFontSize(source)
+            },
             HotCorner = new HotCornerSettings
             {
                 Size = source.HotCorner.Size
@@ -299,5 +322,19 @@ public sealed class FileSettingsWindow : Window
                 Height = source.Window.Height
             }
         };
+    }
+
+    private static string GetFontFamily(AppSettings settings)
+    {
+        return string.IsNullOrWhiteSpace(settings.Font?.Family)
+            ? new FontSettings().Family
+            : settings.Font.Family;
+    }
+
+    private static double GetFontSize(AppSettings settings)
+    {
+        return settings.Font?.Size is >= 6 and <= 72
+            ? settings.Font.Size
+            : new FontSettings().Size;
     }
 }
