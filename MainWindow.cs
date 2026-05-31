@@ -138,7 +138,7 @@ public sealed class MainWindow : Window
     </Style>
 
     <Style TargetType="{x:Type TabItem}">
-        <Setter Property="Foreground" Value="White" />
+        <Setter Property="Foreground" Value="#80FFFFFF" />
         <Setter Property="Background" Value="{StaticResource TopMemoTabBackground}" />
         <Setter Property="BorderBrush" Value="{StaticResource TopMemoChromeBorder}" />
         <Setter Property="Template">
@@ -158,6 +158,7 @@ public sealed class MainWindow : Window
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
                             <Setter TargetName="Border" Property="Background" Value="{StaticResource TopMemoTabSelectedBackground}" />
+                            <Setter Property="Foreground" Value="White" />
                             <Setter Property="Panel.ZIndex" Value="1" />
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
