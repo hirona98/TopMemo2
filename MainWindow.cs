@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using ICSharpCode.AvalonEdit;
 using Microsoft.Win32;
@@ -54,6 +55,7 @@ public sealed class MainWindow : Window
     private void BuildUi()
     {
         Title = "TopMemo2";
+        Icon = LoadWindowIcon();
         ShowInTaskbar = false;
         WindowStyle = WindowStyle.None;
         AllowsTransparency = true;
@@ -229,7 +231,7 @@ public sealed class MainWindow : Window
 
         _notifyIcon = new Forms.NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Application,
+            Icon = LoadTrayIcon(),
             Text = "TopMemo2",
             ContextMenuStrip = menu,
             Visible = true
@@ -526,5 +528,38 @@ public sealed class MainWindow : Window
     private static int MapOpacityToByte(double opacity)
     {
         return (int)Math.Round(opacity * 255);
+    }
+
+    private static BitmapFrame? LoadWindowIcon()
+    {
+        try
+        {
+            return BitmapFrame.Create(new Uri("pack://application:,,,/Assets/TopMemo.ico", UriKind.Absolute));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static System.Drawing.Icon LoadTrayIcon()
+    {
+        try
+        {
+            var processPath = Environment.ProcessPath;
+            if (!string.IsNullOrWhiteSpace(processPath))
+            {
+                var icon = System.Drawing.Icon.ExtractAssociatedIcon(processPath);
+                if (icon is not null)
+                {
+                    return icon;
+                }
+            }
+        }
+        catch
+        {
+        }
+
+        return System.Drawing.SystemIcons.Application;
     }
 }
