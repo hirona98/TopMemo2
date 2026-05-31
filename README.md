@@ -33,5 +33,5 @@ dotnet build
 dotnet run
 ```
 
-設定ファイルは `%APPDATA%\TopMemo2\settings.json` に保存します。
+設定ファイルは実行ファイルと同じディレクトリの `settings.json` に保存します。
 実ファイルのパスはユーザー環境ごとに設定します。

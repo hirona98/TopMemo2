@@ -15,8 +15,7 @@ public sealed class SettingsStore
 
     public SettingsStore()
     {
-        var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-        var directory = Path.Combine(appData, "TopMemo2");
+        var directory = AppContext.BaseDirectory;
         Directory.CreateDirectory(directory);
         SettingsPath = Path.Combine(directory, "settings.json");
     }
