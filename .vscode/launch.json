@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Publish single-file and run",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "publish: single-file win-x64",
+      "program": "${workspaceFolder}/bin/publish/win-x64-single/TopMemo2.exe",
+      "cwd": "${workspaceFolder}/bin/publish/win-x64-single",
+      "console": "internalConsole",
+      "stopAtEntry": false
+    }
+  ]
+}
